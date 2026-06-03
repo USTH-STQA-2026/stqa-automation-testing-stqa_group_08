@@ -20,7 +20,7 @@ import os
 import time
 import pytest
 from conftest import (
-    enable_flutter_semantics, flutter_fill, flutter_click_button,
+    enable_flutter_semantics, flutter_fill, flutter_click_button, wait_for_flutter,
     login, SCREENSHOT_DIR,
 )
 
@@ -50,7 +50,23 @@ def test_borrow_book(page, test_config):
            (*Assert: "Đang mượn" hoặc "thành công" xuất hiện*)
     """
     # TODO: Students implement here (Sinh viên viết code ở đây)
-    pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
+    page.goto(test_config["base_url"], wait_until="networkidle", timeout=60000)
+    enable_flutter_semantics(page)
+    flutter_fill(page, "Email", test_config["email"])
+    flutter_fill(page, "Mật khẩu", test_config["password"])
+    flutter_click_button(page, "Đăng nhập")
+    wait_for_flutter(page, text="Đăng xuất")
+    page.locator('flt-semantics[role="button"]:has-text("Mượn sách này")').first.click()  # Click the first available book
+    wait_for_flutter(page, text = "Mượn")
+    enable_flutter_semantics(page)  # Re-enable semantics after dialog appears
+    flutter_click_button(page, "Mượn")
+    wait_for_flutter(page, text="Đang mượn")
+
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, "borrow_book.png"))  # Debug screenshot
+    sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
+    assert "Đang mượn" in sem_text or "thành công" in sem_text, "Book was not borrowed successfully"
+
+    
 
 
 def test_view_borrowed_books(page, test_config):
@@ -68,7 +84,19 @@ def test_view_borrowed_books(page, test_config):
           (*Kiểm tra: có sách với aria-label chứa "Đang mượn" hoặc có nút "Trả sách"*)
     """
     # TODO: Students implement here (Sinh viên viết code ở đây)
-    pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
+    page.goto(test_config["base_url"], wait_until="networkidle", timeout=60000)
+    enable_flutter_semantics(page)
+    flutter_fill(page, "Email", test_config["email"])
+    flutter_fill(page, "Mật khẩu", test_config["password"])
+    flutter_click_button(page, "Đăng nhập")
+    wait_for_flutter(page, text="Đăng xuất")
+    page.locator('flt-semantics[role="tab"][aria-label="Mượn / Trả"]').click()  # Switch to "Mượn / Trả" tab
+    wait_for_flutter(page, text="Trả sách")  # Wait for "Trả sách" button to appear
+
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, "borrowed_books.png"))  # Debug screenshot
+    sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
+    print(sem_text)  # Debug print to check the text content
+    assert "Đang mượn" in sem_text or "Trả sách" in sem_text, "No borrowed books are shown in Mượn / Trả tab"    
 
 
 def test_return_book(page, test_config):
@@ -88,4 +116,49 @@ def test_return_book(page, test_config):
           (*Click và kiểm tra sách chuyển trạng thái hoặc có thông báo thành công*)
     """
     # TODO: Students implement here (Sinh viên viết code ở đây)
-    pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
+    page.goto(test_config["base_url"], wait_until="networkidle", timeout=60000)
+    enable_flutter_semantics(page)
+    flutter_fill(page, "Email", test_config["email"])
+    flutter_fill(page, "Mật khẩu", test_config["password"])
+    flutter_click_button(page, "Đăng nhập")
+    wait_for_flutter(page, text="Đăng xuất")
+    page.locator('flt-semantics[role="tab"][aria-label="Mượn / Trả"]').click()  # Switch to "Mượn / Trả" tab
+    wait_for_flutter(page, text="Trả sách")  # Wait for "Trả sách" button to appear
+    page.locator('flt-semantics[role="button"]:has-text("Trả sách")').first.click()  # Click the first "Trả sách" button
+    wait_for_flutter(page, text="Trả sách thành công.")  # Wait for the book to become available again
+
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, "return_book.png"))  # Debug screenshot
+    sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
+    assert "Trả sách thành công" in sem_text or "Đã trả" in sem_text, "Book was not returned successfully"
+
+def test_borrow_sus(page, test_config):
+    page.goto(test_config["base_url"], wait_until="networkidle", timeout=60000)
+    enable_flutter_semantics(page)
+    flutter_fill(page, "Email", "cu.le@email.com")
+    flutter_fill(page, "Mật khẩu", test_config["password"])
+    flutter_click_button(page, "Đăng nhập")
+    wait_for_flutter(page, text="Đăng xuất")
+    page.locator('flt-semantics[role="button"]:has-text("Mượn sách này")').first.click()  # Click the first available book
+    wait_for_flutter(page, text = "Mượn")
+    enable_flutter_semantics(page)  # Re-enable semantics after dialog appears
+    flutter_click_button(page, "Mượn")
+    wait_for_flutter(page, text="Thành viên đã hết hạn. Không thể mượn sách.")
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, "borrow_sus.png"))  # Debug screenshot
+    sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
+    assert "Thành viên đã hết hạn" in sem_text, "Error message does not appear correctly"
+
+def test_overdue_check(page, test_config):
+    page.goto(test_config["base_url"], wait_until="networkidle", timeout=60000)
+    enable_flutter_semantics(page)
+    flutter_fill(page, "Email", "librarian@library.com")
+    flutter_fill(page, "Mật khẩu", "admin123")
+    flutter_click_button(page, "Đăng nhập")
+    wait_for_flutter(page, text="Đăng xuất")
+    page.locator('flt-semantics[role="tab"][aria-label="Mượn / Trả"]').click()  # Switch to "Mượn / Trả" tab
+    wait_for_flutter(page, text="Tất cả phiếu mượn")
+    page.locator('flt-semantics[role="button"]:has-text("Kiểm tra sách quá hạn")').click()  # Click the first "Kiểm tra sách quá hạn" button
+    wait_for_flutter(page, text="Quá hạn")
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, "overdue_check.png"))  # Debug screenshot
+    sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
+    print(sem_text)  # Debug print to check the text content
+    assert "quá hạn" in sem_text, "Overdue books are not displayed correctly"
