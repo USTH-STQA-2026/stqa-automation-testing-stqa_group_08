@@ -39,6 +39,30 @@ def test_search_book_by_name(page, test_config):
     """
     # TODO: Students implement here (Sinh viên viết code ở đây)
 
+    login(page, test_config)
+
+    flutter_fill(
+        page,
+        "Tìm kiếm theo tên sách hoặc tác giả...",
+        "Kiểm thử"
+    )
+
+    texts = page.locator("flt-semantics").all_text_contents()
+
+    page.screenshot(
+        path=os.path.join(
+            SCREENSHOT_DIR,
+            "tc04_search_book.png"
+        ),
+        full_page=True
+    )
+
+    all_text = " ".join(texts)
+
+    assert "Kiểm thử phần mềm nhập môn" in all_text, \
+        "Không tìm thấy sách sau khi tìm kiếm"
+
+    """
     books = page.locator('flt-semantics:has-text("Mã: BOOK")')
     first_book = books.first.text_content()
 
@@ -51,7 +75,8 @@ def test_search_book_by_name(page, test_config):
     )
 
     assert books.count() > 0
-
+    """
+    
     """
     The provided locator based on aria-label does not match the current Flutter Semantics Tree. Book information is rendered as text content (text_content()) rather than aria-label, so text-based locators are required.
     
@@ -68,42 +93,7 @@ def test_search_book_by_name(page, test_config):
         'flt-semantics[aria-label*="Flutter"]'
     )
     """
-    """
-    result = page.locator(
-    'flt-semantics:has-text("Flutter")'
-    )
-
-    texts = page.locator(
-        "flt-semantics"
-    ).all_text_contents()
-
-    assert any(
-        "Flutter" in t
-        for t in texts
-    ), "Can't find Flutter"
-    """
-
-    """
-    books = page.locator(
-        'flt-semantics:has-text("Mã: BOOK")'
-    )
-
-    assert books.count() > 0, \
-        "Không tìm thấy sách chứa từ khóa tìm kiếm"
-
-    """
-    """
-    texts = page.locator("flt-semantics").all_text_contents()
-       
-    assert False, "\n---\n".join(texts)
-    """
     
-    page.screenshot(
-        path=os.path.join(
-            SCREENSHOT_DIR,
-            "search_flutter.png"
-        )
-    )
 
     #pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
 
