@@ -44,12 +44,9 @@ def test_search_book_by_name(page, test_config):
     flutter_fill(
         page,
         "Tìm kiếm theo tên sách hoặc tác giả...",
-        "Kiểm thử"
+        "Flutter"
     )
 
-    texts = page.locator("flt-semantics").all_text_contents()
-
-    """
     page.screenshot(
         path=os.path.join(
             SCREENSHOT_DIR,
@@ -58,43 +55,10 @@ def test_search_book_by_name(page, test_config):
         full_page=True
     )
 
-    all_text = " ".join(texts)
+    texts = page.locator("flt-semantics").all_text_contents()
 
-    assert "Kiểm thử phần mềm nhập môn" in all_text, \
-        "Không tìm thấy sách sau khi tìm kiếm"
-
-    """
-    books = page.locator('flt-semantics:has-text("Mã: BOOK")')
-    first_book = books.first.text_content()
-
-    book_title = first_book.split("\n")[0].strip()
-
-    flutter_fill(
-        page,
-        "Tìm kiếm theo tên sách hoặc tác giả...",
-        book_title
-    )
-
-    assert books.count() > 0
-    
-    
-    """
-    The provided locator based on aria-label does not match the current Flutter Semantics Tree. Book information is rendered as text content (text_content()) rather than aria-label, so text-based locators are required.
-    
-    for i in range(page.locator("flt-semantics").count()):
-        node = page.locator("flt-semantics").nth(i)
-
-        print(
-            i,
-            "TEXT =", repr(node.text_content()),
-            "ARIA =", repr(node.get_attribute("aria-label"))
-        )
-
-    result = page.locator(
-        'flt-semantics[aria-label*="Flutter"]'
-    )
-    """
-    
+    assert any("Flutter" in t for t in texts), \
+        "Không tìm thấy sách Flutter"
 
     #pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
 
@@ -121,27 +85,15 @@ def test_search_book_no_result(page, test_config):
         "xyz_khong_ton_tai_12345"
     )
 
-    """
-    books = page.locator(
-        'flt-semantics[role="group"][aria-label*="Mã: BOOK"]'
-    )"""
-
     books = page.locator('flt-semantics:has-text("Mã: BOOK")')
-
 
     page.screenshot(
         path=os.path.join(
             SCREENSHOT_DIR,
-            "search_book_no_result.png"
+            "tc05_search_book_no_result.png"
         )
     )
 
-    """
-    for i in range(books.count()):
-        print("-----")
-        print(books.nth(i).text_content())
-    """
-        
     assert books.count() == 0, \
         f"Expected 0 books but found {books.count()}"
 
