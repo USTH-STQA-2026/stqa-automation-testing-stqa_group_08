@@ -49,6 +49,7 @@ def test_search_book_by_name(page, test_config):
 
     texts = page.locator("flt-semantics").all_text_contents()
 
+    """
     page.screenshot(
         path=os.path.join(
             SCREENSHOT_DIR,
@@ -75,7 +76,7 @@ def test_search_book_by_name(page, test_config):
     )
 
     assert books.count() > 0
-    """
+    
     
     """
     The provided locator based on aria-label does not match the current Flutter Semantics Tree. Book information is rendered as text content (text_content()) rather than aria-label, so text-based locators are required.
