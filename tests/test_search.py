@@ -76,7 +76,7 @@ def test_search_book_by_name(page, test_config):
     )
 
     assert result.count() > 0, \
-        "Không tìm thấy sách Flutter"
+        "Can't find Flutter"
 
 
     #pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
