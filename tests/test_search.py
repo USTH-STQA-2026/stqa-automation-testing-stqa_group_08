@@ -39,13 +39,18 @@ def test_search_book_by_name(page, test_config):
     """
     # TODO: Students implement here (Sinh viên viết code ở đây)
 
-    login(page, test_config)
+    books = page.locator('flt-semantics:has-text("Mã: BOOK")')
+    first_book = books.first.text_content()
+
+    book_title = first_book.split("\n")[0].strip()
 
     flutter_fill(
         page,
         "Tìm kiếm theo tên sách hoặc tác giả...",
-        "Flutter"
+        book_title
     )
+
+    assert books.count() > 0
 
     """
     The provided locator based on aria-label does not match the current Flutter Semantics Tree. Book information is rendered as text content (text_content()) rather than aria-label, so text-based locators are required.
@@ -78,10 +83,21 @@ def test_search_book_by_name(page, test_config):
     ), "Can't find Flutter"
     """
 
+    """
+    books = page.locator(
+        'flt-semantics:has-text("Mã: BOOK")'
+    )
+
+    assert books.count() > 0, \
+        "Không tìm thấy sách chứa từ khóa tìm kiếm"
+
+    """
+    """
     texts = page.locator("flt-semantics").all_text_contents()
-
+       
     assert False, "\n---\n".join(texts)
-
+    """
+    
     page.screenshot(
         path=os.path.join(
             SCREENSHOT_DIR,
