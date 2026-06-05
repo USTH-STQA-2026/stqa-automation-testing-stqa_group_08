@@ -41,7 +41,15 @@ def test_logout(page, test_config):
            (*Assert: có nút "Đăng nhập" hoặc ô input Email*)
     """
     # TODO: Students implement here (Sinh viên viết code ở đây)
-    pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
+def test_logout(page, test_config):
+    login(page, test_config) #  nhập trang chủ
+    flutter_click_button(page, "Đăng xuất") # Click nút đăng xuất
+    wait_for_flutter(page, text="Đăng nhập") # Chờ trang đăng nhập load "Đăng nhập"
+    enable_flutter_semantics(page)
+    assert page.locator('flt-semantics[role="button"]:has-text("Đăng nhập")').is_visible()
+    assert page.locator('input[aria-label="Email"]').is_visible()
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, "logout_success.png"))
+
 
 
 def test_switch_language_to_english(page, test_config):
@@ -61,4 +69,16 @@ def test_switch_language_to_english(page, test_config):
         5. Assert: "Logout" or "Borrow" or "Library" in sem_text
     """
     # TODO: Students implement here (Sinh viên viết code ở đây)
-    pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
+def test_switch_language_to_english(page, test_config):
+    login(page, test_config) # Đăng nhập trang chủ   
+    flutter_click_button(page, "EN") # Đổi ngôn ngữ sang tiếng Anh
+    wait_for_flutter(page, text="Logout") # Chờ trang chủ load "Đăng xuất"
+    enable_flutter_semantics(page)
+    sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
+    assert "Logout" in sem_text, "Không thấy nút 'Đăng xuất' sau khi đổi ngôn ngữ"
+    assert "Borrow" in sem_text, "Không thấy text ' sau khi đổi ngôn ngữ"
+    assert "Library" in sem_text, "Không thấy text Library sau khi đổi ngôn ngữ"
+    assert "Search" in sem_text, "Không thấy text Search sau khi đổi ngôn ngữ"
+
+    # 5. Screenshot – Chụp minh chứng
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, "switch_language_en.png"))
