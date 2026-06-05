@@ -67,17 +67,22 @@ def test_search_book_by_name(page, test_config):
     result = page.locator(
     'flt-semantics:has-text("Flutter")'
     )
-    
+
+    texts = page.locator(
+        "flt-semantics"
+    ).all_text_contents()
+
+    assert any(
+        "Flutter" in t
+        for t in texts
+    ), "Can't find Flutter"
+
     page.screenshot(
         path=os.path.join(
             SCREENSHOT_DIR,
             "search_flutter.png"
         )
     )
-
-    assert result.count() > 0, \
-        "Can't find Flutter"
-
 
     #pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
 
