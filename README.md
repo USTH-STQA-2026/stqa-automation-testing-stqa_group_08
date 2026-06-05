@@ -25,8 +25,8 @@ Sử dụng **Playwright + Python** để kiểm thử hệ thống Mượn sác
 | --- | ---- | --------- | ----------- |
 | 1   |      |           | Nhóm trưởng |
 | 2   |   2410498   |      Nguyễn Danh Kiên     | Thành viên  |
-| 3   |   2410616   |   Nguyễn Đức Minh        | Thành viên  |
-| 4   |      |           | Thành viên  |
+| 3   |      |           | Thành viên  |
+| 4   | 2410616     | Nguyễn Đức Minh          | Thành viên  |
 
 ---
 
