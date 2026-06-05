@@ -63,7 +63,7 @@ def test_search_book_by_name(page, test_config):
         'flt-semantics[aria-label*="Flutter"]'
     )
     """
-    
+    """
     result = page.locator(
     'flt-semantics:has-text("Flutter")'
     )
@@ -76,6 +76,11 @@ def test_search_book_by_name(page, test_config):
         "Flutter" in t
         for t in texts
     ), "Can't find Flutter"
+    """
+
+    texts = page.locator("flt-semantics").all_text_contents()
+
+    assert False, "\n---\n".join(texts)
 
     page.screenshot(
         path=os.path.join(
