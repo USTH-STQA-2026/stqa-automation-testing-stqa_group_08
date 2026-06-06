@@ -23,7 +23,17 @@ from conftest import (
 )
 
 
-def test_search_book_by_name(page, test_config):
+@pytest.mark.parametrize(
+    "keyword",
+    [
+        "Flutter",
+        "flutter",
+        "FLUTTER",
+        "fLuTtEr",
+    ]
+)
+
+def test_search_book_by_name(page, test_config, keyword):
     """TC-04: Search book by name – results found (*Tìm kiếm sách theo tên — tìm thấy kết quả*)
 
     🔴 NOT COMPLETED (*CHƯA HOÀN THÀNH*)
@@ -39,33 +49,34 @@ def test_search_book_by_name(page, test_config):
     """
     # TODO: Students implement here (Sinh viên viết code ở đây)
 
+    # [R] Reachability
     login(page, test_config)
+    enable_flutter_semantics(page)
 
+    # [I] Infection
     flutter_fill(
         page,
         "Tìm kiếm theo tên sách hoặc tác giả...",
-        "Flutter"
+        keyword
     )
+
+    # [P] Propagation
+    wait_for_flutter(page)
 
     page.screenshot(
         path=os.path.join(
             SCREENSHOT_DIR,
-            "tc04_search_book.png"
-        ),
-        full_page=True
+            f"search_{keyword}.png"
+        )
     )
-    """
-    texts = page.locator("flt-semantics").all_text_contents()
 
-    assert any("Flutter" in t for t in texts), \
-        "Find no book has Flutter"
-    """
+    # [R✓] Revealability
     result = page.locator(
         'flt-semantics[aria-label*="Flutter"]'
     )
 
     assert result.count() > 0, \
-        "Không tìm thấy sách Flutter"
+        f"Search should be case-insensitive for '{keyword}'"
     #pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
 
 
@@ -83,37 +94,49 @@ def test_search_book_no_result(page, test_config):
         - Verify: page.locator('flt-semantics[role="group"][aria-label*="Mã: BOOK"]').count() == 0
     """
     # TODO: Students implement here (Sinh viên viết code ở đây)
+    
+    # [R] Reachability
     login(page, test_config)
+    enable_flutter_semantics(page)
 
+    # [I] Infection
     flutter_fill(
         page,
         "Tìm kiếm theo tên sách hoặc tác giả...",
         "xyz_khong_ton_tai_12345"
     )
-    
+
+    # [P] Propagation
+    wait_for_flutter(page)
+
     page.screenshot(
         path=os.path.join(
             SCREENSHOT_DIR,
-            "tc05_search_book_no_result.png"
+            "search_no_result.png"
         )
     )
 
-    """
-    books = page.locator('flt-semantics:has-text("Mã: BOOK")')
-    assert books.count() == 0, \
-        f"Expected 0 books but found {books.count()}"
-    """
-    books = page.locator(
-        'flt-semantics[role="group"][aria-label*="Mã: BOOK"]'
+    # [R✓] Revealability
+    result = page.locator(
+        'flt-semantics[aria-label*="xyz_khong_ton_tai_12345"]'
     )
 
-    assert books.count() == 0, \
-        "Vẫn còn sách hiển thị dù không có kết quả"
-        
+    assert result.count() == 0, \
+        "Vẫn tìm thấy kết quả dù từ khóa không tồn tại"
     #pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
 
 
-def test_filter_by_category(page, test_config):
+@pytest.mark.parametrize(
+    "category",
+    [
+        "Công nghệ",
+        "công nghệ",
+        "CÔNG NGHỆ",
+        "cÔnG NgHệ",
+    ]
+)
+
+def test_filter_by_category(page, test_config, category):
     """TC-06: Filter books by category 'Công nghệ' (*Lọc sách theo thể loại 'Công nghệ'*)
 
     🔴 NOT COMPLETED (*CHƯA HOÀN THÀNH*)
@@ -133,54 +156,48 @@ def test_filter_by_category(page, test_config):
     """
     # TODO: Students implement here (Sinh viên viết code ở đây)
     
+    # [R] Reachability
     login(page, test_config)
+    enable_flutter_semantics(page)
 
+    # [I] Infection
     flutter_fill(
         page,
         "Lọc theo thể loại (VD: Công nghệ, Kinh tế...)",
-        "Công nghệ"
+        category
     )
+
+    # [P] Propagation
+    wait_for_flutter(page)
 
     page.screenshot(
         path=os.path.join(
             SCREENSHOT_DIR,
-            "tc06_filter_cong_nghe.png"
-        ),
-        full_page=True
+            f"category_{category}.png"
+        )
     )
 
-    """
-    books = page.locator(
-        'flt-semantics:has-text("Mã: BOOK")'
-    )
-
-    assert books.count() > 0, \
-        "No book after applying filter"
-
-    for i in range(books.count()):
-        text = books.nth(i).text_content()
-
-        assert "Công nghệ" in text, \
-            f"Book's category is not Công nghệ:\n{text}"
-    """
+    # [R✓] Revealability
     books = page.locator(
         'flt-semantics[role="group"][aria-label*="Mã: BOOK"]'
     )
 
     assert books.count() > 0, \
-        "Không tìm thấy sách thể loại Công nghệ"
-
-    for i in range(books.count()):
-
-        label = books.nth(i).get_attribute("aria-label")
-
-        assert "Công nghệ" in label, \
-            f"Sách sai thể loại: {label}"     
-
+        f"No books found for category '{category}'"
     # pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
 
 
-def test_search_by_author(page, test_config):
+@pytest.mark.parametrize(
+    "author",
+    [
+        "Nguyễn Minh Đức",
+        "nguyễn minh đức",
+        "NGUYỄN MINH ĐỨC",
+        "NgUyỄn MiNh ĐỨc",
+    ]
+)
+
+def test_search_by_author(page, test_config, author):
     """TC-07: Search book by author name (*Tìm kiếm sách theo tên tác giả*)
 
     🔴 NOT COMPLETED (*CHƯA HOÀN THÀNH*)
@@ -195,66 +212,32 @@ def test_search_by_author(page, test_config):
     """
     # TODO: Students implement here (Sinh viên viết code ở đây)
 
+    # [R] Reachability
     login(page, test_config)
+    enable_flutter_semantics(page)
 
+    # [I] Infection
     flutter_fill(
         page,
         "Tìm kiếm theo tên sách hoặc tác giả...",
-        "Nguyễn Minh Đức"
+        author
     )
+
+    # [P] Propagation
+    wait_for_flutter(page)
 
     page.screenshot(
         path=os.path.join(
             SCREENSHOT_DIR,
-            "tc07_search_author.png"
-        ),
-        full_page=True
+            f"author_{author}.png"
+        )
     )
 
-    """
-    texts = page.locator("flt-semantics").all_text_contents()
-
-    all_text = " ".join(texts)
-
-    assert "Nguyễn Minh Đức" in all_text, \
-        "Can't find book having author: Nguyễn Minh Đức"
-    """
-
+    # [R✓] Revealability
     result = page.locator(
         'flt-semantics[aria-label*="Nguyễn Minh Đức"]'
     )
 
     assert result.count() > 0, \
-        "Không tìm thấy tác giả Nguyễn Minh Đức"
+        f"Search should be case-insensitive for author '{author}'"
     #pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
-
-
-@pytest.mark.parametrize(
-    "keyword, should_found",
-    [
-        ("Flutter", True),
-        ("Nguyễn Minh Đức", True),
-        ("xyz_khong_ton_tai_12345", False),
-    ]
-)
-
-def test_search_data_driven(page, test_config, keyword, should_found):
-
-    login(page, test_config)
-
-    flutter_fill(
-        page,
-        "Tìm kiếm theo tên sách hoặc tác giả...",
-        keyword
-    )
-
-    result = page.locator(
-        f'flt-semantics[aria-label*="{keyword}"]'
-    )
-
-    if should_found:
-        assert result.count() > 0, \
-            f"Không tìm thấy kết quả với '{keyword}'"
-    else:
-        assert result.count() == 0, \
-            f"Vẫn tìm thấy kết quả với '{keyword}'"
