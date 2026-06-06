@@ -27,8 +27,9 @@ def test_login_success(page, test_config):
         Xem comment [R], [I], [P], [R✓] bên dưới.
     """
     # [R] Reachability: Truy cập trang đăng nhập — chạm tới UI cần test
-    page.goto(test_config["base_url"], wait_until="networkidle", timeout=60000)
-    enable_flutter_semantics(page)
+    page.goto(test_config["base_url"], wait_until="networkidle", timeout=60000) 
+
+    enable_flutter_semantics(page) 
 
     # [I] Infection: Nhập dữ liệu hợp lệ — kích hoạt logic đăng nhập trong hệ thống
     flutter_fill(page, "Email", test_config["email"])
@@ -90,8 +91,35 @@ def test_login_fail_wrong_password(page, test_config):
            (*Assert: URL vẫn ở trang đăng nhập HOẶC có thông báo lỗi*)
     """
     # TODO: Students implement here (Sinh viên viết code ở đây)
-    pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
 
+    # [R] Reachability: Truy cập trang đăng nhập — chạm tới UI cần test
+    page.goto(test_config["base_url"], wait_until="networkidle", timeout=60000)
+    
+    enable_flutter_semantics(page)
+
+    # [I] Infection: Nhập email hợp lệ nhưng mật khẩu sai - kích hoạt trạng thái lỗi
+    flutter_fill(page, "Email", test_config["email"])
+    flutter_fill(page, "Mật khẩu", "wrongpassword")
+    flutter_click_button(page, "Đăng nhập")
+        
+    # [P] Propagation: Hệ thống xử lý - lỗi lan truyền ra thông báo
+    wait_for_flutter(page, text="Mật khẩu không đúng")
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, "login_fail_wrong_password.png"))
+    
+    # [R✓] Revealability: assert ... - Test Oracle kiểm tra thông báo lỗi
+    sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
+
+    has_login = "Đăng xuất" in sem_text or "Logout" in sem_text
+    
+    error_keywords = ["Mật khẩu không đúng", "Password is incorrect", "incorrect", "không đúng"]
+    has_error_message = any(kw in sem_text for kw in error_keywords)
+
+    assert not has_login, \
+        "TC-02 FAIL: Hệ thống cho phép đăng nhập với mật khẩu sai — lỗ hổng bảo mật!"
+    assert has_error_message, \
+        f"TC-02 FAIL: Không thấy thông báo 'Mật khẩu không đúng'." \
+        f"sem_text snapshot: {sem_text[:300]}"
+    
 
 def test_login_fail_empty_fields(page, test_config):
     """TC-03: Login fail – empty fields (*Đăng nhập thất bại – để trống các trường*)
@@ -111,4 +139,87 @@ def test_login_fail_empty_fields(page, test_config):
         4. Assert: URL still on login page (*Assert: URL vẫn ở trang đăng nhập*)
     """
     # TODO: Students implement here (Sinh viên viết code ở đây)
-    pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
+
+    # [R] Reachability: Truy cập trang đăng nhập — chạm tới UI cần test
+    page.goto(test_config["base_url"], wait_until="networkidle", timeout=60000)
+    enable_flutter_semantics(page)
+    
+    # [I] Infection: Không nhập gì — click thẳng "Đăng nhập" ngay lập tức
+    flutter_click_button(page, "Đăng nhập")
+
+    # [P] Propagation: Hệ thống xử lý login → Trạng thái không đăng nhập lan truyền ra UI (vẫn ở trang login)
+    wait_for_flutter(page, text="Đăng nhập")
+    enable_flutter_semantics(page)
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, "login_fail_empty_fields.png"))
+
+    # [R✓] Revealability: assert ... → Test Oracle kiểm tra hệ thống không cho phép đăng nhập và có thông báo yêu cầu nhập thông tin
+    sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
+
+    error_keywords = ["Vui lòng nhập email và mật khẩu", "Please enter email and password", "Vui lòng nhập", "enter email"]
+    has_error_message = any(kw.lower() in sem_text.lower() for kw in error_keywords)
+
+    has_login = "Đăng xuất" in sem_text or "Logout" in sem_text
+
+    assert not has_login, \
+        "TC-03 FAIL: Hệ thống cho phép đăng nhập khi bỏ trống Email và Mật khẩu — lỗ hổng nghiêm trọng!"
+    assert has_error_message, \
+        f"TC-03 FAIL: Không thấy thông báo yêu cầu nhập thông tin đầy đủ.\n" \
+        f"sem_text: \n{sem_text[:300]}"
+    
+
+
+@pytest.mark.parametrize(
+    "input_email, input_password, expected_keywords, tc_id",
+    [
+        # TC-02: Email đúng + mật khẩu sai → SRS REQ-01: "Mật khẩu không đúng"
+        ("USE_CONFIG_EMAIL", "wrongpassword", ["Mật khẩu không đúng", "Password is incorrect", "incorrect", "không đúng"], "TC-02"),
+        
+        # TC-03: Bỏ trống cả hai → SRS REQ-01: "Vui lòng nhập email và mật khẩu"
+        ("", "", ["Vui lòng nhập email và mật khẩu", "Please enter email and password", "Vui lòng nhập", "enter email"], "TC-03"),
+    ]
+)
+
+def test_login_fail_datadriven(page, test_config, input_email, input_password, expected_keywords, tc_id):
+    """TC-02 & TC-03: Login fail (*Đăng nhập thất bại*) — Data-Driven Testing (Bonus B2)
+
+    📖 RIPR Model:
+        [R] page.goto(...) → Tiếp cận giao diện đăng nhập
+        [I] flutter_fill(...) → Nạp dữ liệu không hợp lệ để làm nhiễm trạng thái
+        [P] wait_for_flutter(...) → Trạng thái lỗi lan truyền ra giao diện UI
+        [R✓] assert ... → Test Oracle bộc lộ và bắt lỗi
+
+        Data sets:
+        TC-02: email đúng + mật khẩu sai  → "Mật khẩu không đúng"
+        TC-03: bỏ trống cả hai fields     → "Vui lòng nhập email và mật khẩu"
+    """
+   
+    # [R] Reachability: Tiếp cận vùng cần kiểm thử
+    page.goto(test_config["base_url"], wait_until="networkidle", timeout=60000)
+    enable_flutter_semantics(page)
+
+    # [I] Infection: Logic xử lý dữ liệu đầu vào theo tham số dữ liệu
+    final_email = test_config["email"] if input_email == "USE_CONFIG_EMAIL" else input_email
+    
+    if final_email:
+        flutter_fill(page, "Email", final_email)
+    if input_password:
+        flutter_fill(page, "Mật khẩu", input_password)
+    flutter_click_button(page, "Đăng nhập")
+
+    # [P] Propagation: Chờ hệ thống thông báo trạng thái lỗi và chụp ảnh minh chứng
+    wait_for_flutter(page, text="Đăng nhập")
+    enable_flutter_semantics(page)
+    
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, f"login_fail_{tc_id}.png"))
+
+    # [R✓] Revealability: 
+    sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
+
+    has_error_message = any(kw.lower() in sem_text.lower() for kw in expected_keywords)
+    has_login = "Đăng xuất" in sem_text or "Logout" in sem_text
+    assert not has_login, \
+        f"{tc_id} FAIL: Hệ thống dính lỗ hổng bảo mật nghiêm trọng, cho phép login thành công!"
+
+    assert has_error_message, \
+        f"{tc_id} FAIL: Không tìm thấy thông báo lỗi phù hợp trên giao diện.\n" \
+        f"sem_text:\n{sem_text[:300]}"
