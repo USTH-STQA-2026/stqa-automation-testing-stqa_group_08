@@ -23,20 +23,11 @@ Sử dụng **Playwright + Python** để kiểm thử hệ thống Mượn sác
 
 | #   | MSSV | Họ và tên | Vai trò     |
 | --- | ---- | --------- | ----------- |
-<<<<<<< HEAD
-| 1   |      |           | Nhóm trưởng |
-| 2   |   2410498   |      Nguyễn Danh Kiên     | Thành viên  |
-| 3   |      |           | Thành viên  |
-| 4   | 2410616     | Nguyễn Đức Minh          | Thành viên  |
-
-=======
 | 1   |   2410460   | Nguyễn Vân Khánh | Nhóm trưởng |
 | 2   |   2410498   | Nguyễn Danh Kiên | Thành viên  |
 | 3   |   2410616   | Nguyễn Đức Minh  | Thành viên  |
 | 4   |   2410588   | Lê Đức Minh      | Thành viên  |
 | 5   |   2410532   | Phí Lê Bảo Linh  | Thành viên  |
->>>>>>> f60ccaf16283af67cadd14d1d3a8b7f10de68075
----
 
 ## 📖 Trước khi bắt đầu — Bối cảnh / Before You Start — Context
 
