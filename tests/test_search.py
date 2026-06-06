@@ -24,16 +24,15 @@ from conftest import (
 
 
 @pytest.mark.parametrize(
-    "keyword",
+    "case_id, keyword",
     [
-        "Flutter",
-        "flutter",
-        "FLUTTER",
-        "fLuTtEr",
+        ("01", "Flutter"),
+        ("02", "flutter"),
+        ("03", "FLUTTER"),
+        ("04", "fLuTtEr"),
     ]
 )
-
-def test_search_book_by_name(page, test_config, keyword):
+def test_search_book_by_name(page, test_config, keyword, case_id):
     """TC-04: Search book by name – results found (*Tìm kiếm sách theo tên — tìm thấy kết quả*)
 
     🔴 NOT COMPLETED (*CHƯA HOÀN THÀNH*)
@@ -66,7 +65,7 @@ def test_search_book_by_name(page, test_config, keyword):
     page.screenshot(
         path=os.path.join(
             SCREENSHOT_DIR,
-            f"search_{keyword}.png"
+            f"tc04_search_name_{case_id}.png"
         )
     )
 
@@ -112,7 +111,7 @@ def test_search_book_no_result(page, test_config):
     page.screenshot(
         path=os.path.join(
             SCREENSHOT_DIR,
-            "search_no_result.png"
+            "tc05_search_book_no_result.png"
         )
     )
 
@@ -122,21 +121,21 @@ def test_search_book_no_result(page, test_config):
     )
 
     assert result.count() == 0, \
-        "Vẫn tìm thấy kết quả dù từ khóa không tồn tại"
+        "Shows results though keyword does not exist"
     #pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
 
 
 @pytest.mark.parametrize(
-    "category",
+    "case_id, category",
     [
-        "Công nghệ",
-        "công nghệ",
-        "CÔNG NGHỆ",
-        "cÔnG NgHệ",
+        ("01", "Công nghệ"),
+        ("02", "công nghệ"),
+        ("03", "CÔNG NGHỆ"),
+        ("04", "cÔnG NgHệ"),
     ]
 )
 
-def test_filter_by_category(page, test_config, category):
+def test_filter_by_category(page, test_config, category, case_id):
     """TC-06: Filter books by category 'Công nghệ' (*Lọc sách theo thể loại 'Công nghệ'*)
 
     🔴 NOT COMPLETED (*CHƯA HOÀN THÀNH*)
@@ -173,7 +172,7 @@ def test_filter_by_category(page, test_config, category):
     page.screenshot(
         path=os.path.join(
             SCREENSHOT_DIR,
-            f"category_{category}.png"
+            f"tc06_filter_category_{case_id}.png"
         )
     )
 
@@ -184,20 +183,33 @@ def test_filter_by_category(page, test_config, category):
 
     assert books.count() > 0, \
         f"No books found for category '{category}'"
+
+    
+    for i in range(books.count()):
+
+        book = books.nth(i)
+
+        aria_label = book.get_attribute("aria-label")
+
+        assert aria_label is not None, \
+            f"Book #{i + 1} does not have an aria-label"
+
+        assert "Công nghệ" in aria_label, \
+            f"Book #{i + 1} is not in category 'Công nghệ': {aria_label}"
     # pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
 
 
 @pytest.mark.parametrize(
-    "author",
+    "case_id, author",
     [
-        "Nguyễn Minh Đức",
-        "nguyễn minh đức",
-        "NGUYỄN MINH ĐỨC",
-        "NgUyỄn MiNh ĐỨc",
+        ("01", "Nguyễn Minh Đức"),
+        ("02", "nguyễn minh đức"),
+        ("03", "NGUYỄN MINH ĐỨC"),
+        ("04", "NgUyỄn MiNh ĐỨc"),
     ]
 )
 
-def test_search_by_author(page, test_config, author):
+def test_search_by_author(page, test_config, author, case_id):
     """TC-07: Search book by author name (*Tìm kiếm sách theo tên tác giả*)
 
     🔴 NOT COMPLETED (*CHƯA HOÀN THÀNH*)
@@ -229,7 +241,7 @@ def test_search_by_author(page, test_config, author):
     page.screenshot(
         path=os.path.join(
             SCREENSHOT_DIR,
-            f"author_{author}.png"
+            f"tc07_search_author_{case_id}.png"
         )
     )
 
