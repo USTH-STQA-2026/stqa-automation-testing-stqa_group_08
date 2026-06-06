@@ -227,3 +227,34 @@ def test_search_by_author(page, test_config):
     assert result.count() > 0, \
         "Không tìm thấy tác giả Nguyễn Minh Đức"
     #pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
+
+
+@pytest.mark.parametrize(
+    "keyword, should_found",
+    [
+        ("Flutter", True),
+        ("Nguyễn Minh Đức", True),
+        ("xyz_khong_ton_tai_12345", False),
+    ]
+)
+
+def test_search_data_driven(page, test_config, keyword, should_found):
+
+    login(page, test_config)
+
+    flutter_fill(
+        page,
+        "Tìm kiếm theo tên sách hoặc tác giả...",
+        keyword
+    )
+
+    result = page.locator(
+        f'flt-semantics[aria-label*="{keyword}"]'
+    )
+
+    if should_found:
+        assert result.count() > 0, \
+            f"Không tìm thấy kết quả với '{keyword}'"
+    else:
+        assert result.count() == 0, \
+            f"Vẫn tìm thấy kết quả với '{keyword}'"
