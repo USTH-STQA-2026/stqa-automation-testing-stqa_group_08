@@ -53,6 +53,7 @@ def test_logout(page, test_config):
     enable_flutter_semantics(page)
 
     # [R✓] Revealability: Kiểm tra kết quả — Test Oracle phát hiện lỗi nếu có
+    assert page.url == test_config["base_url"], "Error: Unexpected URL redirect or system crash!"
     assert page.locator('flt-semantics[role="button"]:has-text("Đăng nhập")').is_visible(), "Logout failed: nút Đăng nhập không hiển thị"
     assert page.locator('input[aria-label="Email"]').is_visible(), "Logout failed: ô nhập Email không hiển thị"
     
@@ -91,6 +92,7 @@ def test_switch_language_to_english(page, test_config):
 
     # [R✓] Revealability: Kiểm tra kết quả — Test Oracle phát hiện lỗi nếu có
     sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
+    assert page.url == test_config["base_url"], "Error: Unexpected URL redirect or system crash!"
     assert "Logout" in sem_text, "Không thấy nút 'Log out' sau khi đổi ngôn ngữ"
     assert "Borrow" in sem_text, "Không thấy text 'Borrow' sau khi đổi ngôn ngữ"
     assert "Library" in sem_text, "Không thấy text 'Library' sau khi đổi ngôn ngữ"
