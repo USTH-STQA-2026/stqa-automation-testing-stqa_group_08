@@ -71,6 +71,7 @@ def test_borrow_book(page, test_config):
     
     #[R✓]
     book = page.locator("flt-semantics", has_text="Mã: BOOK001").last
+    assert page.url == test_config["base_url"], "Error: Unexpected URL redirect or system crash!"
     assert "Đang mượn" in book.text_content(), "Book was not borrowed successfully"
 
     
@@ -105,6 +106,7 @@ def test_view_borrowed_books(page, test_config):
     
     #[R✓]
     sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
+    assert page.url == test_config["base_url"], "Error: Unexpected URL redirect or system crash!"
     assert "Đang mượn" in sem_text or "Trả sách" in sem_text, "No borrowed books are shown in Mượn / Trả tab"    
 
 
@@ -140,6 +142,7 @@ def test_return_book(page, test_config):
     
     #[R✓]
     book = page.locator("flt-semantics", has_text="Mã phiếu: BR001").last
+    assert page.url == test_config["base_url"], "Error: Unexpected URL redirect or system crash!"
     assert "Đã trả" in book.text_content(), "Book was not returned successfully"
 
 def test_borrow_sus(page, test_config):
@@ -165,6 +168,7 @@ def test_borrow_sus(page, test_config):
     #[R✓]
     sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
     book = page.locator("flt-semantics[role='group'][aria-label*='Mã: BOOK001']")
+    assert page.url == test_config["base_url"], "Error: Unexpected URL redirect or system crash!"
     assert "Thành viên đã hết hạn" in sem_text, "Error message does not appear correctly"
     assert "Đang mượn" in book.text_content(), "Suspended member borrowed book sucessfully"
 
@@ -189,4 +193,5 @@ def test_overdue_check(page, test_config):
     
     #[R✓]
     sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
+    assert page.url == test_config["base_url"], "Error: Unexpected URL redirect or system crash!"
     assert "Đã cập nhật:" in sem_text, "Overdue books are not displayed correctly"
