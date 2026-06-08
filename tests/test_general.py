@@ -20,7 +20,7 @@ import time
 import pytest
 from conftest import (
     enable_flutter_semantics, flutter_fill, flutter_click_button,
-    login, SCREENSHOT_DIR,
+    login, SCREENSHOT_DIR, wait_for_flutter,
 )
 
 
@@ -41,13 +41,23 @@ def test_logout(page, test_config):
            (*Assert: có nút "Đăng nhập" hoặc ô input Email*)
     """
     # TODO: Students implement here (Sinh viên viết code ở đây)
-def test_logout(page, test_config):
-    login(page, test_config) #  nhập trang chủ
-    flutter_click_button(page, "Đăng xuất") # Click nút đăng xuất
-    wait_for_flutter(page, text="Đăng nhập") # Chờ trang đăng nhập load "Đăng nhập"
+
+    # [R] Reachability: Truy cập trang chủ — chạm tới UI cần test
+    login(page, test_config) 
+
+    # [I] Infection: Thực hiện hành động đăng xuất — kích hoạt logic logout trong hệ thống
+    flutter_click_button(page, "Đăng xuất")
+
+    # [P] Propagation: Chờ trạng thái lan truyền ra UI — trang đăng nhập xuất hiện
+    wait_for_flutter(page, text="Đăng nhập")   
     enable_flutter_semantics(page)
-    assert page.locator('flt-semantics[role="button"]:has-text("Đăng nhập")').is_visible()
-    assert page.locator('input[aria-label="Email"]').is_visible()
+
+    # [R✓] Revealability: Kiểm tra kết quả — Test Oracle phát hiện lỗi nếu có
+    assert page.url == test_config["base_url"], "Error: Unexpected URL redirect or system crash!"
+    assert page.locator('flt-semantics[role="button"]:has-text("Đăng nhập")').is_visible(), "Logout failed: nút Đăng nhập không hiển thị"
+    assert page.locator('input[aria-label="Email"]').is_visible(), "Logout failed: ô nhập Email không hiển thị"
+    
+    # Lưu screenshot minh chứng
     page.screenshot(path=os.path.join(SCREENSHOT_DIR, "logout_success.png"))
 
 
@@ -69,16 +79,24 @@ def test_switch_language_to_english(page, test_config):
         5. Assert: "Logout" or "Borrow" or "Library" in sem_text
     """
     # TODO: Students implement here (Sinh viên viết code ở đây)
-def test_switch_language_to_english(page, test_config):
-    login(page, test_config) # Đăng nhập trang chủ   
-    flutter_click_button(page, "EN") # Đổi ngôn ngữ sang tiếng Anh
-    wait_for_flutter(page, text="Logout") # Chờ trang chủ load "Đăng xuất"
-    enable_flutter_semantics(page)
-    sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
-    assert "Logout" in sem_text, "Không thấy nút 'Đăng xuất' sau khi đổi ngôn ngữ"
-    assert "Borrow" in sem_text, "Không thấy text ' sau khi đổi ngôn ngữ"
-    assert "Library" in sem_text, "Không thấy text Library sau khi đổi ngôn ngữ"
-    assert "Search" in sem_text, "Không thấy text Search sau khi đổi ngôn ngữ"
 
-    # 5. Screenshot – Chụp minh chứng
+    # [R] Reachability: Đăng nhập trang chủ — chạm tới UI cần test
+    login(page, test_config)  
+
+    # [I] Infection: Click nút "EN" — Giao diện chuyển sang tiếng Anh
+    flutter_click_button(page, "EN") 
+
+    # [P] Propagation: Chờ trạng thái lan truyền ra UI - hiển thị text "Logout"
+    wait_for_flutter(page, text="Logout") # Chờ trang
+    enable_flutter_semantics(page) #kích hoạt Senmantics để đọc text
+
+    # [R✓] Revealability: Kiểm tra kết quả — Test Oracle phát hiện lỗi nếu có
+    sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
+    assert page.url == test_config["base_url"], "Error: Unexpected URL redirect or system crash!"
+    assert "Logout" in sem_text, "Không thấy nút 'Log out' sau khi đổi ngôn ngữ"
+    assert "Borrow" in sem_text, "Không thấy text 'Borrow' sau khi đổi ngôn ngữ"
+    assert "Library" in sem_text, "Không thấy text 'Library' sau khi đổi ngôn ngữ"
+    assert "Search" in sem_text, "Không thấy text 'Search' sau khi đổi ngôn ngữ"
+
+    # Screenshot 
     page.screenshot(path=os.path.join(SCREENSHOT_DIR, "switch_language_en.png"))
