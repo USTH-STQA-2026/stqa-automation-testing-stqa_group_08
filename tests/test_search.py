@@ -251,5 +251,5 @@ def test_search_by_author(page, test_config, author, case_id):
     )
 
     assert result.count() > 0, \
-        f"Search should be case-insensitive for author '{author}'"
+        f"No search result found for author '{author}'"
     #pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
