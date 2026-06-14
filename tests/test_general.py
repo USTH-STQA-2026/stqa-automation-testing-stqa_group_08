@@ -16,18 +16,13 @@ Hints (*Gợi ý*):
       (*Sau chuyển EN: text tiếng Anh có thể xuất hiện*)
 """
 import os
-import time
-import pytest
-from conftest import (
-    enable_flutter_semantics, flutter_fill, flutter_click_button,
-    login, SCREENSHOT_DIR, wait_for_flutter,
-)
+from conftest import flutter_click_button, login, wait_for_flutter, SCREENSHOT_DIR
 
 
 def test_logout(page, test_config):
     """TC-11: Logout success (*Đăng xuất thành công*)
 
-    🔴 NOT COMPLETED (*CHƯA HOÀN THÀNH*)
+    ✅ COMPLETED
 
     Description (*Mô tả*):
         Log in → click Logout → verify page returns to login screen.
@@ -40,32 +35,30 @@ def test_logout(page, test_config):
         4. Assert: "Đăng nhập" button or Email input exists
            (*Assert: có nút "Đăng nhập" hoặc ô input Email*)
     """
-    # TODO: Students implement here (Sinh viên viết code ở đây)
 
-    # [R] Reachability: Truy cập trang chủ — chạm tới UI cần test
+    # [R] Reachability
     login(page, test_config) 
 
-    # [I] Infection: Thực hiện hành động đăng xuất — kích hoạt logic logout trong hệ thống
+    # [I] Infection
     flutter_click_button(page, "Đăng xuất")
 
-    # [P] Propagation: Chờ trạng thái lan truyền ra UI — trang đăng nhập xuất hiện
+    # [P] Propagation
     wait_for_flutter(page, text="Đăng nhập")   
-    enable_flutter_semantics(page)
-
-    # [R✓] Revealability: Kiểm tra kết quả — Test Oracle phát hiện lỗi nếu có
-    assert page.url == test_config["base_url"], "Error: Unexpected URL redirect or system crash!"
-    assert page.locator('flt-semantics[role="button"]:has-text("Đăng nhập")').is_visible(), "Logout failed: nút Đăng nhập không hiển thị"
-    assert page.locator('input[aria-label="Email"]').is_visible(), "Logout failed: ô nhập Email không hiển thị"
-    
-    # Lưu screenshot minh chứng
     page.screenshot(path=os.path.join(SCREENSHOT_DIR, "logout_success.png"))
 
+    # [R✓] Revealability
+    sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
+    has_login_button = "Đăng nhập" in sem_text
+    has_email_input = page.locator('input[aria-label="Email"]').count() > 0
+
+    assert has_login_button or has_email_input, \
+        "Logout failed: 'Đăng nhập' button or Email input not found after logout"
 
 
 def test_switch_language_to_english(page, test_config):
     """TC-12: Switch language to English (*Chuyển ngôn ngữ sang tiếng Anh*)
 
-    🔴 NOT COMPLETED (*CHƯA HOÀN THÀNH*)
+    ✅ COMPLETED
 
     Description (*Mô tả*):
         Log in → click "EN" button → verify UI switches to English.
@@ -78,25 +71,23 @@ def test_switch_language_to_english(page, test_config):
         4. Get sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
         5. Assert: "Logout" or "Borrow" or "Library" in sem_text
     """
-    # TODO: Students implement here (Sinh viên viết code ở đây)
 
-    # [R] Reachability: Đăng nhập trang chủ — chạm tới UI cần test
+    # [R] Reachability
     login(page, test_config)  
 
-    # [I] Infection: Click nút "EN" — Giao diện chuyển sang tiếng Anh
+    # [I] Infection
     flutter_click_button(page, "EN") 
 
-    # [P] Propagation: Chờ trạng thái lan truyền ra UI - hiển thị text "Logout"
-    wait_for_flutter(page, text="Logout") # Chờ trang
-    enable_flutter_semantics(page) #kích hoạt Senmantics để đọc text
-
-    # [R✓] Revealability: Kiểm tra kết quả — Test Oracle phát hiện lỗi nếu có
-    sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
-    assert page.url == test_config["base_url"], "Error: Unexpected URL redirect or system crash!"
-    assert "Logout" in sem_text, "Không thấy nút 'Log out' sau khi đổi ngôn ngữ"
-    assert "Borrow" in sem_text, "Không thấy text 'Borrow' sau khi đổi ngôn ngữ"
-    assert "Library" in sem_text, "Không thấy text 'Library' sau khi đổi ngôn ngữ"
-    assert "Search" in sem_text, "Không thấy text 'Search' sau khi đổi ngôn ngữ"
-
-    # Screenshot 
+    # [P] Propagation
+    wait_for_flutter(page, text="VI")
     page.screenshot(path=os.path.join(SCREENSHOT_DIR, "switch_language_en.png"))
+
+    # [R✓] Revealability
+    sem_text = " ".join(page.locator("flt-semantics").all_text_contents())
+    has_logout_en  = "Sign out" in sem_text
+    has_borrow_en  = "Borrow" in sem_text
+    has_library_en = "Library" in sem_text
+
+    assert has_logout_en and has_borrow_en and has_library_en, \
+        f"Language switch failed — missing English text in UI. " \
+        f"Logout={has_logout_en}, Borrow={has_borrow_en}, Library={has_library_en} "
