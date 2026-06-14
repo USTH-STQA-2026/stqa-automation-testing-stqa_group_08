@@ -214,7 +214,7 @@ def test_borrow_expired(page, test_config):
     assert not is_borrowed, "FAIL: Expired member successfully borrowed a book — should be rejected."
 
 
-@pytest.mark.xfail(reason="BUG: Incorrect rejection reason: suspended member labeled as expired. — violates REQ-04")
+@pytest.mark.xfail(reason="BUG-02: Incorrect rejection reason: suspended member labeled as expired. — violates REQ-04")
 
 def test_borrow_sus(page, test_config):
     """TC-15: Suspended member can't borrow a book"""

@@ -50,7 +50,7 @@ def test_search_book_by_name(page, test_config, keyword, case_id):
     flutter_fill(page, "Tìm kiếm theo tên sách hoặc tác giả...", keyword)
 
     # [P] Propagation
-    wait_for_flutter(page, text="Flutter")
+    wait_for_flutter(page, text="BOOK001")
     page.screenshot(path=os.path.join(SCREENSHOT_DIR, f"search_book_by_name_{case_id}.png"))
 
     # [R✓] Revealability
@@ -89,7 +89,18 @@ def test_search_book_no_result(page, test_config):
     assert books.count() == 0, "FAIL: {books.count()} book card(s) still showing for non-existent keyword."
 
 
-def test_filter_by_category(page, test_config):
+@pytest.mark.xfail(reason="BUG-01: Category filter is case-sensitive")
+
+@pytest.mark.parametrize(
+    "case_id, category",
+    [
+        ("01", "Công nghệ"),
+        ("02", "công nghệ"),
+        ("03", "CÔNG NGHỆ")
+    ]
+)
+
+def test_filter_by_category(page, test_config, category, case_id):
     """TC-06: Filter books by category 'Công nghệ' (*Lọc sách theo thể loại 'Công nghệ'*)
 
     ✅ COMPLETED
@@ -112,17 +123,17 @@ def test_filter_by_category(page, test_config):
     login(page, test_config)
 
     # [I] Infection
-    flutter_fill(page, "Lọc theo thể loại (VD: Công nghệ, Kinh tế...)", "Công nghệ")
+    flutter_fill(page, "Lọc theo thể loại (VD: Công nghệ, Kinh tế...)", category)
 
     # [P] Propagation — wait for a non-Công nghệ book to disappear
-    page.locator('flt-semantics:has-text("Kỹ năng giao tiếp")').wait_for(state="detached", timeout=5000)
-    page.screenshot(path=os.path.join(SCREENSHOT_DIR, f"filter_by_category.png"))
+    wait_for_flutter(page, text="Kỹ năng giao tiếp")
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, f"filter_by_category_{case_id}.png"))
 
     # [R✓] Revealability
     books = page.locator('flt-semantics[role="group"][aria-label*="Mã: BOOK"]')
 
     assert books.count() > 0, \
-        f"FAIL: No books found for category 'Công nghệ'"
+        f"FAIL: Category search should be case-insensitive for '{category}'."
 
     for i in range(books.count()):
         book = books.nth(i)
@@ -164,7 +175,7 @@ def test_search_by_author(page, test_config, author, case_id):
     flutter_fill(page, "Tìm kiếm theo tên sách hoặc tác giả...", author)
 
     # [P] Propagation — wait for a book by a different author to disappear
-    page.locator('flt-semantics:has-text("Cấu trúc dữ liệu và giải thuật")').wait_for(state="detached", timeout=5000)
+    wait_for_flutter(page, text="Nhập môn lập trình Python")
     page.screenshot(path=os.path.join(SCREENSHOT_DIR, f"search_by_author_{case_id}.png"))
 
     # [R✓] Revealability
