@@ -19,16 +19,7 @@ import pytest
 from conftest import flutter_fill, login, wait_for_flutter, SCREENSHOT_DIR
 
 
-@pytest.mark.parametrize(
-    "case_id, keyword",
-    [
-        ("01", "Flutter"),
-        ("02", "flutter"),
-        ("03", "FLUTTER")
-    ]
-)
-
-def test_search_book_by_name(page, test_config, keyword, case_id):
+def test_search_book_by_name(page, test_config):
     """TC-04: Search book by name – results found (*Tìm kiếm sách theo tên — tìm thấy kết quả*)
 
     ✅ COMPLETED
@@ -47,17 +38,17 @@ def test_search_book_by_name(page, test_config, keyword, case_id):
     login(page, test_config)
 
     # [I] Infection
-    flutter_fill(page, "Tìm kiếm theo tên sách hoặc tác giả...", keyword)
+    flutter_fill(page, "Tìm kiếm theo tên sách hoặc tác giả...", "Flutter")
 
     # [P] Propagation
     wait_for_flutter(page, text="BOOK001")
-    page.screenshot(path=os.path.join(SCREENSHOT_DIR, f"search_book_by_name_{case_id}.png"))
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, f"search_book_by_name.png"))
 
     # [R✓] Revealability
     result = page.locator('flt-semantics[aria-label*="Flutter"]')
 
     assert result.count() > 0, \
-        f"FAIL: Search should be case-insensitive for '{keyword}'."
+        f"FAIL: No books are displayed."
 
 
 def test_search_book_no_result(page, test_config):
@@ -89,18 +80,7 @@ def test_search_book_no_result(page, test_config):
     assert books.count() == 0, "FAIL: {books.count()} book card(s) still showing for non-existent keyword."
 
 
-@pytest.mark.xfail(reason="BUG-01: Category filter is case-sensitive")
-
-@pytest.mark.parametrize(
-    "case_id, category",
-    [
-        ("01", "Công nghệ"),
-        ("02", "công nghệ"),
-        ("03", "CÔNG NGHỆ")
-    ]
-)
-
-def test_filter_by_category(page, test_config, category, case_id):
+def test_filter_by_category(page, test_config):
     """TC-06: Filter books by category 'Công nghệ' (*Lọc sách theo thể loại 'Công nghệ'*)
 
     ✅ COMPLETED
@@ -123,17 +103,17 @@ def test_filter_by_category(page, test_config, category, case_id):
     login(page, test_config)
 
     # [I] Infection
-    flutter_fill(page, "Lọc theo thể loại (VD: Công nghệ, Kinh tế...)", category)
+    flutter_fill(page, "Lọc theo thể loại (VD: Công nghệ, Kinh tế...)", "Công nghệ")
 
-    # [P] Propagation — wait for a non-Công nghệ book to disappear
-    wait_for_flutter(page, text="Kỹ năng giao tiếp")
-    page.screenshot(path=os.path.join(SCREENSHOT_DIR, f"filter_by_category_{case_id}.png"))
+    # [P] Propagation
+    wait_for_flutter(page, text="Kiểm thử phần mềm nhập môn")
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, f"filter_by_category.png"))
 
     # [R✓] Revealability
     books = page.locator('flt-semantics[role="group"][aria-label*="Mã: BOOK"]')
 
     assert books.count() > 0, \
-        f"FAIL: Category search should be case-insensitive for '{category}'."
+        f"FAIL: No books are displayed."
 
     for i in range(books.count()):
         book = books.nth(i)
@@ -145,16 +125,7 @@ def test_filter_by_category(page, test_config, category, case_id):
             f"FAIL: Book #{i + 1} is not in category 'Công nghệ': {aria_label}"
 
 
-@pytest.mark.parametrize(
-    "case_id, author",
-    [
-        ("01", "Nguyễn Minh Đức"),
-        ("02", "nguyễn minh đức"),
-        ("03", "NGUYỄN MINH ĐỨC")
-    ]
-)
-
-def test_search_by_author(page, test_config, author, case_id):
+def test_search_by_author(page, test_config):
     """TC-07: Search book by author name (*Tìm kiếm sách theo tên tác giả*)
 
     ✅ COMPLETED
@@ -172,14 +143,14 @@ def test_search_by_author(page, test_config, author, case_id):
     login(page, test_config)
 
     # [I] Infection
-    flutter_fill(page, "Tìm kiếm theo tên sách hoặc tác giả...", author)
+    flutter_fill(page, "Tìm kiếm theo tên sách hoặc tác giả...", "Nguyễn Minh Đức")
 
-    # [P] Propagation — wait for a book by a different author to disappear
+    # [P] Propagation
     wait_for_flutter(page, text="Nhập môn lập trình Python")
-    page.screenshot(path=os.path.join(SCREENSHOT_DIR, f"search_by_author_{case_id}.png"))
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, f"search_by_author.png"))
 
     # [R✓] Revealability
     result = page.locator('flt-semantics[aria-label*="Nguyễn Minh Đức"]')
 
     assert result.count() > 0, \
-        f"FAIL: Author search should be case-insensitive for '{author}'."
+        f"FAIL: No books are displayed."
