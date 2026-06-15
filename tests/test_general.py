@@ -79,7 +79,7 @@ def test_switch_language_to_english(page, test_config):
     flutter_click_button(page, "EN") 
 
     # [P] Propagation
-    wait_for_flutter(page, text="VI")
+    wait_for_flutter(page, text="Sign out")
     page.screenshot(path=os.path.join(SCREENSHOT_DIR, "switch_language_en.png"))
 
     # [R✓] Revealability
