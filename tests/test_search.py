@@ -15,18 +15,14 @@ Hints (*Gợi ý*):
       (*Dùng login() helper từ conftest.py để đăng nhập trước khi test*)
 """
 import os
-import time
 import pytest
-from conftest import (
-    enable_flutter_semantics, flutter_fill, flutter_click_button,
-    login, SCREENSHOT_DIR,
-)
+from conftest import flutter_fill, login, wait_for_flutter, SCREENSHOT_DIR
 
 
 def test_search_book_by_name(page, test_config):
     """TC-04: Search book by name – results found (*Tìm kiếm sách theo tên — tìm thấy kết quả*)
 
-    🔴 NOT COMPLETED (*CHƯA HOÀN THÀNH*)
+    ✅ COMPLETED
 
     Description (*Mô tả*):
         Log in → search keyword "Flutter" → verify Flutter books appear in results.
@@ -37,14 +33,28 @@ def test_search_book_by_name(page, test_config):
         - flutter_fill(page, "Tìm kiếm theo tên sách hoặc tác giả...", "Flutter")
         - Verify: page.locator('flt-semantics[aria-label*="Flutter"]').count() > 0
     """
-    # TODO: Students implement here (Sinh viên viết code ở đây)
-    pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
+
+    # [R] Reachability
+    login(page, test_config)
+
+    # [I] Infection
+    flutter_fill(page, "Tìm kiếm theo tên sách hoặc tác giả...", "Flutter")
+
+    # [P] Propagation
+    wait_for_flutter(page, text="BOOK001")
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, f"search_book_by_name.png"))
+
+    # [R✓] Revealability
+    result = page.locator('flt-semantics[aria-label*="Flutter"]')
+
+    assert result.count() > 0, \
+        f"FAIL: No books are displayed."
 
 
 def test_search_book_no_result(page, test_config):
     """TC-05: Search book – no results (*Tìm kiếm sách — không có kết quả*)
 
-    🔴 NOT COMPLETED (*CHƯA HOÀN THÀNH*)
+    ✅ COMPLETED
 
     Description (*Mô tả*):
         Log in → search a non-existent keyword (e.g. "xyz_khong_ton_tai_12345")
@@ -54,14 +64,26 @@ def test_search_book_no_result(page, test_config):
     Hints (*Gợi ý*):
         - Verify: page.locator('flt-semantics[role="group"][aria-label*="Mã: BOOK"]').count() == 0
     """
-    # TODO: Students implement here (Sinh viên viết code ở đây)
-    pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
+    
+    # [R] Reachability
+    login(page, test_config)
+
+    # [I] Infection
+    flutter_fill(page, "Tìm kiếm theo tên sách hoặc tác giả...", "xyz_khong_ton_tai_12345")
+
+    # [P] Propagation
+    wait_for_flutter(page, text="Không tìm thấy sách nào.")
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, "search_book_no_result.png"))
+
+    # [R✓] Revealability
+    books = page.locator('flt-semantics[role="group"][aria-label*="Mã: BOOK"]')
+    assert books.count() == 0, "FAIL: {books.count()} book card(s) still showing for non-existent keyword."
 
 
 def test_filter_by_category(page, test_config):
     """TC-06: Filter books by category 'Công nghệ' (*Lọc sách theo thể loại 'Công nghệ'*)
 
-    🔴 NOT COMPLETED (*CHƯA HOÀN THÀNH*)
+    ✅ COMPLETED
 
     Description (*Mô tả*):
         Log in → enter "Công nghệ" in the category filter → verify all displayed books
@@ -76,15 +98,38 @@ def test_filter_by_category(page, test_config):
         - Loop through each book, verify aria-label contains "Công nghệ"
           (*Lặp qua từng sách, kiểm tra aria-label chứa "Công nghệ"*)
     """
-    # TODO: Students implement here (Sinh viên viết code ở đây)
-    pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
+    
+    # [R] Reachability
+    login(page, test_config)
+
+    # [I] Infection
+    flutter_fill(page, "Lọc theo thể loại (VD: Công nghệ, Kinh tế...)", "Công nghệ")
+
+    # [P] Propagation
+    wait_for_flutter(page, text="Kiểm thử phần mềm nhập môn")
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, f"filter_by_category.png"))
+
+    # [R✓] Revealability
+    books = page.locator('flt-semantics[role="group"][aria-label*="Mã: BOOK"]')
+
+    assert books.count() > 0, \
+        f"FAIL: No books are displayed."
+
+    for i in range(books.count()):
+        book = books.nth(i)
+        aria_label = book.get_attribute("aria-label")
+
+        assert aria_label is not None, \
+            f"FAIL: Book #{i + 1} does not have an aria-label"
+        assert "Công nghệ" in aria_label, \
+            f"FAIL: Book #{i + 1} is not in category 'Công nghệ': {aria_label}"
 
 
 def test_search_by_author(page, test_config):
     """TC-07: Search book by author name (*Tìm kiếm sách theo tên tác giả*)
 
-    🔴 NOT COMPLETED (*CHƯA HOÀN THÀNH*)
-
+    ✅ COMPLETED
+    
     Description (*Mô tả*):
         Log in → search author name (e.g. "Nguyễn Minh Đức") → verify results found.
         (*Đăng nhập → tìm kiếm tên tác giả → kiểm tra có kết quả.*)
@@ -93,5 +138,19 @@ def test_search_by_author(page, test_config):
         - flutter_fill(page, "Tìm kiếm theo tên sách hoặc tác giả...", "Nguyễn Minh Đức")
         - Verify: page.locator('flt-semantics[aria-label*="Nguyễn Minh Đức"]').count() > 0
     """
-    # TODO: Students implement here (Sinh viên viết code ở đây)
-    pytest.skip("Not implemented — student must complete (Chưa hoàn thành)")
+
+    # [R] Reachability
+    login(page, test_config)
+
+    # [I] Infection
+    flutter_fill(page, "Tìm kiếm theo tên sách hoặc tác giả...", "Nguyễn Minh Đức")
+
+    # [P] Propagation
+    wait_for_flutter(page, text="Nhập môn lập trình Python")
+    page.screenshot(path=os.path.join(SCREENSHOT_DIR, f"search_by_author.png"))
+
+    # [R✓] Revealability
+    result = page.locator('flt-semantics[aria-label*="Nguyễn Minh Đức"]')
+
+    assert result.count() > 0, \
+        f"FAIL: No books are displayed."
